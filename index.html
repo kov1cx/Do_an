@@ -1,0 +1,2486 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logistics Dashboard - Đồ án Xuất khẩu Vải thiều/Nhãn sang Nhật Bản</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        /* ==================== CSS VARIABLES ==================== */
+        :root {
+            --transition-speed: 0.4s;
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-card: #1a1a2e;
+            --bg-card-hover: #1f1f35;
+            --bg-glass: rgba(26, 26, 46, 0.7);
+            --text-primary: #e8e8f0;
+            --text-secondary: #a0a0b8;
+            --text-muted: #6b6b80;
+            --accent-primary: #6c63ff;
+            --accent-secondary: #00d4aa;
+            --accent-tertiary: #ff6b6b;
+            --accent-warning: #ffa726;
+            --accent-info: #42a5f5;
+            --border-color: rgba(108, 99, 255, 0.15);
+            --border-glow: rgba(108, 99, 255, 0.3);
+            --shadow-color: rgba(0, 0, 0, 0.4);
+            --gradient-primary: linear-gradient(135deg, #6c63ff, #00d4aa);
+            --gradient-secondary: linear-gradient(135deg, #ff6b6b, #ffa726);
+            --gradient-bg: linear-gradient(135deg, #0a0a0f 0%, #12121a 50%, #1a1a2e 100%);
+            --glow-primary: 0 0 20px rgba(108, 99, 255, 0.3);
+            --glow-secondary: 0 0 20px rgba(0, 212, 170, 0.3);
+            --scrollbar-bg: #1a1a2e;
+            --scrollbar-thumb: #6c63ff;
+            --particle-color: rgba(108, 99, 255, 0.1);
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #f0f2f5;
+            --bg-secondary: #ffffff;
+            --bg-card: #ffffff;
+            --bg-card-hover: #f8f9ff;
+            --bg-glass: rgba(255, 255, 255, 0.85);
+            --text-primary: #1a1a2e;
+            --text-secondary: #555570;
+            --text-muted: #8888a0;
+            --accent-primary: #5b52e0;
+            --accent-secondary: #00b894;
+            --accent-tertiary: #e74c3c;
+            --accent-warning: #f39c12;
+            --accent-info: #3498db;
+            --border-color: rgba(91, 82, 224, 0.12);
+            --border-glow: rgba(91, 82, 224, 0.2);
+            --shadow-color: rgba(0, 0, 0, 0.08);
+            --gradient-primary: linear-gradient(135deg, #5b52e0, #00b894);
+            --gradient-secondary: linear-gradient(135deg, #e74c3c, #f39c12);
+            --gradient-bg: linear-gradient(135deg, #f0f2f5 0%, #e8eaf0 50%, #f0f2f5 100%);
+            --glow-primary: 0 0 15px rgba(91, 82, 224, 0.15);
+            --glow-secondary: 0 0 15px rgba(0, 184, 148, 0.15);
+            --scrollbar-bg: #e8e8f0;
+            --scrollbar-thumb: #5b52e0;
+            --particle-color: rgba(91, 82, 224, 0.06);
+        }
+
+        /* ==================== RESET & BASE ==================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        *::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        *::-webkit-scrollbar-track {
+            background: var(--scrollbar-bg);
+        }
+
+        *::-webkit-scrollbar-thumb {
+            background: var(--scrollbar-thumb);
+            border-radius: 4px;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--gradient-bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            transition: background var(--transition-speed) ease,
+                        color var(--transition-speed) ease;
+        }
+
+        /* ==================== LOADING SCREEN ==================== */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #0a0a0f;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            transition: opacity 1s ease, visibility 1s ease;
+        }
+
+        .loading-screen.fade-out {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .loading-logo {
+            position: relative;
+            margin-bottom: 40px;
+        }
+
+        .loading-ring {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            position: relative;
+        }
+
+        .loading-ring::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            border: 3px solid transparent;
+            border-top-color: #6c63ff;
+            border-right-color: #00d4aa;
+            animation: loadingSpin 1.2s linear infinite;
+        }
+
+        .loading-ring::after {
+            content: '';
+            position: absolute;
+            inset: 8px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            border-bottom-color: #ff6b6b;
+            border-left-color: #ffa726;
+            animation: loadingSpin 0.8s linear infinite reverse;
+        }
+
+        .loading-icon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 28px;
+            background: linear-gradient(135deg, #6c63ff, #00d4aa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: loadingPulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes loadingSpin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes loadingPulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.7; }
+            50% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+        }
+
+        .loading-text {
+            font-size: 24px;
+            font-weight: 300;
+            letter-spacing: 8px;
+            text-transform: uppercase;
+            background: linear-gradient(90deg, #6c63ff, #00d4aa, #ff6b6b, #6c63ff);
+            background-size: 300% 100%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: loadingGradient 3s ease infinite;
+            margin-bottom: 12px;
+        }
+
+        .loading-sub {
+            font-size: 12px;
+            color: #555570;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            animation: loadingFadeIn 1s ease 0.5s both;
+        }
+
+        @keyframes loadingGradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes loadingFadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .loading-bar-container {
+            width: 200px;
+            height: 2px;
+            background: rgba(108, 99, 255, 0.1);
+            border-radius: 1px;
+            margin-top: 30px;
+            overflow: hidden;
+        }
+
+        .loading-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #6c63ff, #00d4aa);
+            border-radius: 1px;
+            transition: width 0.1s linear;
+        }
+
+        /* ==================== PARTICLES BACKGROUND ==================== */
+        .particles-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            background: var(--particle-color);
+            animation: particleFloat linear infinite;
+        }
+
+        @keyframes particleFloat {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100px) rotate(720deg); opacity: 0; }
+        }
+
+        /* ==================== MAIN CONTENT ==================== */
+        .main-content {
+            opacity: 0;
+            transition: opacity 0.8s ease;
+            position: relative;
+            z-index: 1;
+        }
+
+        .main-content.visible {
+            opacity: 1;
+        }
+
+        /* ==================== HEADER / NAVBAR ==================== */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 0 30px;
+            height: 65px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all var(--transition-speed) ease;
+        }
+
+        .navbar.scrolled {
+            box-shadow: 0 4px 30px var(--shadow-color);
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .nav-logo {
+            width: 38px;
+            height: 38px;
+            background: var(--gradient-primary);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: white;
+            font-weight: 800;
+            box-shadow: var(--glow-primary);
+        }
+
+        .nav-title {
+            font-size: 16px;
+            font-weight: 700;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-subtitle {
+            font-size: 10px;
+            color: var(--text-muted);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .nav-center {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .nav-link {
+            padding: 8px 16px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: var(--accent-primary);
+            background: rgba(108, 99, 255, 0.08);
+        }
+
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 2px;
+            background: var(--accent-primary);
+            border-radius: 1px;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .datetime-display {
+            text-align: right;
+            line-height: 1.3;
+        }
+
+        .time-display {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 16px;
+            font-weight: 600;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .date-display {
+            font-size: 10px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .theme-toggle {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-card);
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+            box-shadow: var(--glow-primary);
+            transform: rotate(15deg);
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-card);
+            color: var(--text-secondary);
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        /* ==================== HERO SECTION ==================== */
+        .hero-section {
+            padding: 100px 30px 40px;
+            text-align: center;
+            position: relative;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 20px;
+            background: rgba(108, 99, 255, 0.1);
+            border: 1px solid rgba(108, 99, 255, 0.2);
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--accent-primary);
+            margin-bottom: 24px;
+            animation: fadeInDown 0.8s ease;
+        }
+
+        .hero-badge .dot {
+            width: 6px;
+            height: 6px;
+            background: var(--accent-secondary);
+            border-radius: 50%;
+            animation: pulse 2s ease infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.5); }
+        }
+
+        .hero-title {
+            font-size: clamp(28px, 5vw, 48px);
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 16px;
+            animation: fadeInUp 0.8s ease 0.2s both;
+        }
+
+        .hero-title .gradient-text {
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-description {
+            font-size: 16px;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto 30px;
+            line-height: 1.7;
+            animation: fadeInUp 0.8s ease 0.4s both;
+        }
+
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+            animation: fadeInUp 0.8s ease 0.6s both;
+        }
+
+        .hero-stat {
+            text-align: center;
+        }
+
+        .hero-stat-value {
+            font-size: 28px;
+            font-weight: 800;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-stat-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 4px;
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ==================== CONTAINER ==================== */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 30px 60px;
+        }
+
+        /* ==================== SECTION HEADER ==================== */
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .section-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: white;
+        }
+
+        .section-icon.purple { background: linear-gradient(135deg, #6c63ff, #7c74ff); }
+        .section-icon.green { background: linear-gradient(135deg, #00d4aa, #00e6b8); }
+        .section-icon.red { background: linear-gradient(135deg, #ff6b6b, #ff8e8e); }
+        .section-icon.blue { background: linear-gradient(135deg, #42a5f5, #64b5f6); }
+        .section-icon.orange { background: linear-gradient(135deg, #ffa726, #ffb74d); }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .section-subtitle {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* ==================== CARDS ==================== */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 28px;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--gradient-primary);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: var(--border-glow);
+            box-shadow: 0 8px 40px var(--shadow-color), var(--glow-primary);
+            transform: translateY(-2px);
+        }
+
+        .card:hover::before {
+            opacity: 1;
+        }
+
+        /* ==================== PROGRESS DASHBOARD ==================== */
+        .progress-section {
+            margin-bottom: 50px;
+        }
+
+        .progress-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 20px;
+        }
+
+        .progress-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 24px;
+            transition: all 0.4s ease;
+        }
+
+        .progress-card:hover {
+            border-color: var(--border-glow);
+            box-shadow: 0 8px 40px var(--shadow-color);
+            transform: translateY(-2px);
+        }
+
+        .progress-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .progress-card-title {
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .progress-card-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .progress-bar-wrapper {
+            margin-bottom: 14px;
+        }
+
+        .progress-bar-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .progress-bar-name {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .progress-bar-percent {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--accent-primary);
+        }
+
+        .progress-bar-bg {
+            width: 100%;
+            height: 8px;
+            background: rgba(108, 99, 255, 0.08);
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            width: 0%;
+        }
+
+        .progress-bar-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            animation: shimmer 2s ease infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .fill-purple { background: linear-gradient(90deg, #6c63ff, #8b83ff); }
+        .fill-green { background: linear-gradient(90deg, #00d4aa, #00e6b8); }
+        .fill-red { background: linear-gradient(90deg, #ff6b6b, #ff8e8e); }
+        .fill-blue { background: linear-gradient(90deg, #42a5f5, #64b5f6); }
+        .fill-orange { background: linear-gradient(90deg, #ffa726, #ffb74d); }
+        .fill-pink { background: linear-gradient(90deg, #ec407a, #f06292); }
+        .fill-teal { background: linear-gradient(90deg, #26a69a, #4db6ac); }
+
+        .overall-progress-card {
+            grid-column: 1 / -1;
+        }
+
+        .overall-bar-bg {
+            height: 14px;
+            border-radius: 7px;
+        }
+
+        .overall-bar-fill {
+            height: 100%;
+            border-radius: 7px;
+            background: var(--gradient-primary);
+            position: relative;
+            transition: width 2s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 0%;
+        }
+
+        .overall-bar-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 2s ease infinite;
+        }
+
+        .overall-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .overall-stat {
+            text-align: center;
+            padding: 12px 20px;
+            background: rgba(108, 99, 255, 0.05);
+            border-radius: 14px;
+            border: 1px solid var(--border-color);
+            min-width: 120px;
+        }
+
+        .overall-stat-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .overall-stat-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .eval-date {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 16px;
+            text-align: center;
+            font-style: italic;
+        }
+
+        .eval-date i {
+            margin-right: 5px;
+            color: var(--accent-secondary);
+        }
+
+        /* ==================== ROADMAP ==================== */
+        .roadmap-section {
+            margin-bottom: 50px;
+        }
+
+        .roadmap-timeline {
+            position: relative;
+            padding-left: 40px;
+        }
+
+        .roadmap-timeline::before {
+            content: '';
+            position: absolute;
+            left: 18px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(180deg, var(--accent-primary), var(--accent-secondary), var(--accent-tertiary));
+            border-radius: 1px;
+        }
+
+        .roadmap-item {
+            position: relative;
+            margin-bottom: 20px;
+            animation: fadeInUp 0.6s ease both;
+        }
+
+        .roadmap-item:nth-child(1) { animation-delay: 0.1s; }
+        .roadmap-item:nth-child(2) { animation-delay: 0.2s; }
+        .roadmap-item:nth-child(3) { animation-delay: 0.3s; }
+        .roadmap-item:nth-child(4) { animation-delay: 0.4s; }
+        .roadmap-item:nth-child(5) { animation-delay: 0.5s; }
+        .roadmap-item:nth-child(6) { animation-delay: 0.6s; }
+        .roadmap-item:nth-child(7) { animation-delay: 0.7s; }
+        .roadmap-item:nth-child(8) { animation-delay: 0.8s; }
+        .roadmap-item:nth-child(9) { animation-delay: 0.9s; }
+        .roadmap-item:nth-child(10) { animation-delay: 1.0s; }
+
+        .roadmap-dot {
+            position: absolute;
+            left: -29px;
+            top: 24px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 3px solid var(--bg-primary);
+            z-index: 2;
+        }
+
+        .roadmap-dot.completed { background: var(--accent-secondary); box-shadow: 0 0 10px rgba(0, 212, 170, 0.4); }
+        .roadmap-dot.in-progress { background: var(--accent-primary); box-shadow: 0 0 10px rgba(108, 99, 255, 0.4); animation: pulse 2s ease infinite; }
+        .roadmap-dot.pending { background: var(--text-muted); }
+
+        .roadmap-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 20px 24px;
+            transition: all 0.3s ease;
+        }
+
+        .roadmap-card:hover {
+            border-color: var(--border-glow);
+            box-shadow: 0 4px 20px var(--shadow-color);
+            transform: translateX(4px);
+        }
+
+        .roadmap-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .roadmap-phase {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            padding: 4px 10px;
+            border-radius: 6px;
+        }
+
+        .phase-completed { background: rgba(0, 212, 170, 0.1); color: var(--accent-secondary); }
+        .phase-progress { background: rgba(108, 99, 255, 0.1); color: var(--accent-primary); }
+        .phase-pending { background: rgba(107, 107, 128, 0.1); color: var(--text-muted); }
+
+        .roadmap-title {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .roadmap-desc {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .roadmap-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 10px;
+        }
+
+        .roadmap-tag {
+            font-size: 10px;
+            padding: 3px 10px;
+            border-radius: 6px;
+            background: rgba(108, 99, 255, 0.06);
+            color: var(--text-muted);
+            border: 1px solid var(--border-color);
+        }
+
+        /* ==================== GUIDES SECTION ==================== */
+        .guides-section {
+            margin-bottom: 50px;
+        }
+
+        .guides-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        .guide-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            overflow: hidden;
+            transition: all 0.4s ease;
+            cursor: pointer;
+        }
+
+        .guide-card:hover {
+            border-color: var(--border-glow);
+            box-shadow: 0 8px 40px var(--shadow-color), var(--glow-primary);
+            transform: translateY(-3px);
+        }
+
+        .guide-card-header {
+            padding: 24px 24px 0;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .guide-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .guide-card-title {
+            font-size: 15px;
+            font-weight: 600;
+            line-height: 1.4;
+        }
+
+        .guide-card-body {
+            padding: 16px 24px 24px;
+        }
+
+        .guide-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease, padding 0.5s ease;
+        }
+
+        .guide-card.expanded .guide-content {
+            max-height: 2000px;
+        }
+
+        .guide-expand-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: var(--accent-primary);
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            background: none;
+            padding: 8px 0;
+            transition: all 0.3s ease;
+        }
+
+        .guide-expand-btn:hover {
+            gap: 10px;
+        }
+
+        .guide-expand-btn i {
+            transition: transform 0.3s ease;
+        }
+
+        .guide-card.expanded .guide-expand-btn i {
+            transform: rotate(180deg);
+        }
+
+        .guide-text {
+            font-size: 13px;
+            line-height: 1.8;
+            color: var(--text-secondary);
+            padding-top: 12px;
+        }
+
+        .guide-text h4 {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 16px 0 8px;
+        }
+
+        .guide-text h4:first-child {
+            margin-top: 0;
+        }
+
+        .guide-text ul {
+            padding-left: 20px;
+            margin: 8px 0;
+        }
+
+        .guide-text li {
+            margin-bottom: 6px;
+        }
+
+        .guide-text code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            background: rgba(108, 99, 255, 0.08);
+            padding: 2px 8px;
+            border-radius: 6px;
+            color: var(--accent-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .guide-text pre {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            background: var(--bg-secondary);
+            padding: 16px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            overflow-x: auto;
+            margin: 12px 0;
+            line-height: 1.6;
+            color: var(--text-secondary);
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .guide-text .highlight {
+            background: rgba(0, 212, 170, 0.1);
+            border-left: 3px solid var(--accent-secondary);
+            padding: 12px 16px;
+            border-radius: 0 10px 10px 0;
+            margin: 12px 0;
+            font-size: 12px;
+        }
+
+        .guide-text .warning {
+            background: rgba(255, 167, 38, 0.1);
+            border-left: 3px solid var(--accent-warning);
+            padding: 12px 16px;
+            border-radius: 0 10px 10px 0;
+            margin: 12px 0;
+            font-size: 12px;
+        }
+
+        .copy-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            font-size: 11px;
+            font-weight: 500;
+            background: rgba(108, 99, 255, 0.1);
+            border: 1px solid rgba(108, 99, 255, 0.2);
+            border-radius: 8px;
+            color: var(--accent-primary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 8px;
+        }
+
+        .copy-btn:hover {
+            background: rgba(108, 99, 255, 0.2);
+        }
+
+        .copy-btn.copied {
+            background: rgba(0, 212, 170, 0.1);
+            border-color: rgba(0, 212, 170, 0.2);
+            color: var(--accent-secondary);
+        }
+
+        /* ==================== MODAL ==================== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            max-width: 700px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            padding: 32px;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.active .modal {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .modal-close {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            background: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            border-color: var(--accent-tertiary);
+            color: var(--accent-tertiary);
+        }
+
+        /* ==================== FOOTER ==================== */
+        .footer {
+            text-align: center;
+            padding: 30px;
+            border-top: 1px solid var(--border-color);
+            margin-top: 40px;
+        }
+
+        .footer-text {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .footer-text a {
+            color: var(--accent-primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .footer-heart {
+            color: var(--accent-tertiary);
+            animation: heartbeat 1.5s ease infinite;
+        }
+
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        /* ==================== SCROLL TO TOP ==================== */
+        .scroll-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 46px;
+            height: 46px;
+            border-radius: 14px;
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            z-index: 900;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+            box-shadow: var(--glow-primary);
+        }
+
+        .scroll-top.visible {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .scroll-top:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(108, 99, 255, 0.4);
+        }
+
+        /* ==================== ANIMATIONS ==================== */
+        .animate-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .animate-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ==================== MOBILE NAV MENU ==================== */
+        .mobile-nav {
+            display: none;
+            position: fixed;
+            top: 65px;
+            left: 0;
+            right: 0;
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 16px 24px;
+            z-index: 999;
+            flex-direction: column;
+            gap: 4px;
+            transform: translateY(-100%);
+            transition: transform 0.3s ease;
+        }
+
+        .mobile-nav.active {
+            transform: translateY(0);
+        }
+
+        .mobile-nav .nav-link {
+            padding: 12px 16px;
+            font-size: 14px;
+            border-radius: 12px;
+            display: block;
+        }
+
+        /* ==================== RESPONSIVE ==================== */
+        @media (max-width: 900px) {
+            .nav-center {
+                display: none;
+            }
+
+            .mobile-menu-btn {
+                display: flex;
+            }
+
+            .mobile-nav {
+                display: flex;
+            }
+
+            .hero-stats {
+                gap: 24px;
+            }
+
+            .progress-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .guides-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .navbar {
+                padding: 0 16px;
+            }
+
+            .hero-section {
+                padding: 90px 16px 30px;
+            }
+
+            .container {
+                padding: 0 16px 40px;
+            }
+
+            .nav-subtitle {
+                display: none;
+            }
+
+            .card, .progress-card, .guide-card, .roadmap-card {
+                border-radius: 16px;
+            }
+
+            .overall-stats {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ==================== LOADING SCREEN ==================== -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-logo">
+            <div class="loading-ring">
+                <i class="fas fa-shipping-fast loading-icon"></i>
+            </div>
+        </div>
+        <div class="loading-text">made by kov1cx</div>
+        <div class="loading-sub">Logistics Dashboard</div>
+        <div class="loading-bar-container">
+            <div class="loading-bar" id="loadingBar"></div>
+        </div>
+    </div>
+
+    <!-- ==================== PARTICLES ==================== -->
+    <div class="particles-container" id="particles"></div>
+
+    <!-- ==================== MAIN CONTENT ==================== -->
+    <div class="main-content" id="mainContent">
+
+        <!-- NAVBAR -->
+        <nav class="navbar" id="navbar">
+            <div class="nav-brand">
+                <div class="nav-logo"><i class="fas fa-truck"></i></div>
+                <div>
+                    <div class="nav-title">Logistics Dashboard</div>
+                    <div class="nav-subtitle">Export Project</div>
+                </div>
+            </div>
+
+            <div class="nav-center">
+                <a href="#progress" class="nav-link active" data-section="progress">
+                    <i class="fas fa-chart-bar"></i> Tiến độ
+                </a>
+                <a href="#roadmap" class="nav-link" data-section="roadmap">
+                    <i class="fas fa-route"></i> Roadmap
+                </a>
+                <a href="#guides" class="nav-link" data-section="guides">
+                    <i class="fas fa-book"></i> Hướng dẫn
+                </a>
+            </div>
+
+            <div class="nav-right">
+                <div class="datetime-display">
+                    <div class="time-display" id="timeDisplay">--:--:--</div>
+                    <div class="date-display" id="dateDisplay">---</div>
+                </div>
+                <button class="theme-toggle" id="themeToggle" title="Chuyển đổi sáng/tối">
+                    <i class="fas fa-sun"></i>
+                </button>
+                <button class="mobile-menu-btn" id="mobileMenuBtn">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </nav>
+
+        <!-- MOBILE NAV -->
+        <div class="mobile-nav" id="mobileNav">
+            <a href="#progress" class="nav-link" onclick="closeMobileNav()">
+                <i class="fas fa-chart-bar"></i> Tiến độ
+            </a>
+            <a href="#roadmap" class="nav-link" onclick="closeMobileNav()">
+                <i class="fas fa-route"></i> Roadmap
+            </a>
+            <a href="#guides" class="nav-link" onclick="closeMobileNav()">
+                <i class="fas fa-book"></i> Hướng dẫn
+            </a>
+        </div>
+
+        <!-- HERO SECTION -->
+        <section class="hero-section">
+            <div class="hero-badge">
+                <span class="dot"></span>
+                Đang thực hiện • Niên khóa 2024–2025
+            </div>
+            <h1 class="hero-title">
+                Đồ án Logistics<br>
+                <span class="gradient-text">Xuất khẩu Vải thiều / Nhãn sang Nhật Bản</span>
+            </h1>
+            <p class="hero-description">
+                Dashboard theo dõi tiến độ, roadmap và tài liệu hướng dẫn cho đồ án chuyên ngành Logistics & Quản lý chuỗi cung ứng.
+            </p>
+            <div class="hero-stats">
+                <div class="hero-stat">
+                    <div class="hero-stat-value" id="heroProgress">0%</div>
+                    <div class="hero-stat-label">Tiến độ chung</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="hero-stat-value">10</div>
+                    <div class="hero-stat-label">Giai đoạn</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="hero-stat-value">4</div>
+                    <div class="hero-stat-label">Hướng dẫn</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="hero-stat-value" id="heroLastUpdate">--</div>
+                    <div class="hero-stat-label">Cập nhật lần cuối</div>
+                </div>
+            </div>
+        </section>
+
+        <div class="container">
+
+            <!-- ==================== PROGRESS SECTION ==================== -->
+            <section class="progress-section animate-in" id="progress">
+                <div class="section-header">
+                    <div class="section-icon purple"><i class="fas fa-chart-line"></i></div>
+                    <div>
+                        <div class="section-title">Phân tích & Tiến độ Đồ án</div>
+                        <div class="section-subtitle">Đánh giá bởi Gemini Pro sau mỗi lần nộp file</div>
+                    </div>
+                </div>
+
+                <div class="progress-grid">
+                    <!-- Overall Progress -->
+                    <div class="progress-card overall-progress-card">
+                        <div class="progress-card-header">
+                            <div class="progress-card-title">
+                                <i class="fas fa-trophy" style="color: var(--accent-warning);"></i>
+                                Tiến độ tổng thể
+                            </div>
+                            <div class="progress-card-value" id="overallValue" style="background: var(--gradient-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">0%</div>
+                        </div>
+                        <div class="progress-bar-bg overall-bar-bg">
+                            <div class="overall-bar-fill" id="overallFill"></div>
+                        </div>
+                        <div class="overall-stats">
+                            <div class="overall-stat">
+                                <div class="overall-stat-value" style="color: var(--accent-secondary);" id="statCompleted">0</div>
+                                <div class="overall-stat-label">Hoàn thành</div>
+                            </div>
+                            <div class="overall-stat">
+                                <div class="overall-stat-value" style="color: var(--accent-primary);" id="statInProgress">0</div>
+                                <div class="overall-stat-label">Đang làm</div>
+                            </div>
+                            <div class="overall-stat">
+                                <div class="overall-stat-value" style="color: var(--text-muted);" id="statPending">0</div>
+                                <div class="overall-stat-label">Chưa làm</div>
+                            </div>
+                            <div class="overall-stat">
+                                <div class="overall-stat-value" style="color: var(--accent-tertiary);" id="statIssues">0</div>
+                                <div class="overall-stat-label">Lỗi cần sửa</div>
+                            </div>
+                        </div>
+                        <div class="eval-date" id="evalDate">
+                            <i class="fas fa-robot"></i> Chưa có đánh giá — Hãy nộp file để Gemini Pro phân tích
+                        </div>
+                    </div>
+
+                    <!-- Content Quality -->
+                    <div class="progress-card">
+                        <div class="progress-card-header">
+                            <div class="progress-card-title">
+                                <i class="fas fa-file-alt" style="color: var(--accent-primary);"></i>
+                                Chất lượng Nội dung
+                            </div>
+                        </div>
+                        <div class="progress-bar-wrapper">
+                            <div class="progress-bar-label">
+                                <span class="progress-bar-name">Mở đầu & Giới thiệu</span>
+                                <span class="progress-bar-percent" data-target="0">0%</span>
+                            </div>
+                            <div class="progress-bar-bg">
+                                <div class="progress-bar-fill fill-purple" data-width="0"></div>
+                            </div>
+                        </div>
+                        <div class="progress-bar-wrapper">
+                            <div class="progress-bar-label">
+                                <span class="progress-bar-name">Cơ sở lý luận</span>
+                                <span class="progress-bar-percent" data-target="0">0%</span>
+                            </div>
+                            <div class="progress-bar-bg">
+                                <div class="progress-bar-fill fill-blue" data-width="0"></div>
+                            </div>
+                        </div>
+                        <div class="progress-bar-wrapper">
+                            <div class="progress-bar-label">
+                                <span class="progress-bar-name">Thực trạng & Phân tích</span>
+                                <span class="progress-bar-percent" data-target="0">0%</span>
+                            </div>
+                            <div class="progress-bar-bg">
+                                <div class="progress-bar-fill fill-green" data-width="0"></div>
+                            </div>
+                        </div>
+                        <div class="progress-bar-wrapper">
+                            <div class="progress-bar-label">
+                                <span class="progress-bar-name">Giải pháp & Kiến nghị</span>
+                                <span class="progress-bar-percent" data-target="0">0%</span>
+                            </div>
+                            <div class="progress-bar-bg">
+                                <div class="progress-bar-fill fill-orange" data-width="0"></div>
+                            </div>
+                        </div>
+                        <div class="progress-bar-wrapper">
+                            <div class="progress-bar-label">
+                                <span class="progress-bar-name">Kết luận</span>
+                                <span class="progress-bar-percent" data-target="0">0%</span>
+                            </div>
+                            <div class="progress-bar-bg">
+                                <div class="progress-bar-fill fill-teal" data-width="0"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Format & Presentation -->
+                    <div class="progress-card">
+                        <div class="progress-card-header">
+                            <div class="progress-card-title">
+                                <i class="fas fa-palette" style="color: var(--accent-secondary);"></i>
+                                Trình bày & Định dạng
+                            </div>
+                        </div>
+                        <div class="progress-bar-wrapper">
+                            <div class="progress-bar-label">
+                                <span class="progress-bar-name">Căn lề & Font chữ</span>
+                                <span class="progress-bar-percent" data-target="0">0%</span>
+                            </div>
+                            <div class="progress-bar-bg">
+                                <div class="progress-bar-fill fill-green" data-width="0"></div>
+                            </div>
+                        </div>
+                        <div class="progress-bar-wrapper">
+                            <div class="progress-bar-label">
+                                <span class="progress-bar-name">Headings & Mục lục</span>
+                                <span class="progress-bar-percent" data-target="0">0%</span>
+                            </div>
+                            <div class="progress-bar-bg">
+                                <div class="progress-bar-fill fill-purple" data-width="0"></div>
+                            </div>
+                        </div>
+                        <div class="progress-bar-wrapper">
+                            <div class="progress-bar-label">
+                                <span class="progress-bar-name">Bảng biểu & Hình ảnh</span>
+                                <span class="progress-bar-percent" data-target="0">0%</span>
+                            </div>
+                            <div class="progress-bar-bg">
+                                <div class="progress-bar-fill fill-blue" data-width="0"></div>
+                            </div>
+                        </div>
+                        <div class="progress-bar-wrapper">
+                            <div class="progress-bar-label">
+                                <span class="progress-bar-name">Trích dẫn & TLTK (APA)</span>
+                                <span class="progress-bar-percent" data-target="0">0%</span>
+                            </div>
+                            <div class="progress-bar-bg">
+                                <div class="progress-bar-fill fill-red" data-width="0"></div>
+                            </div>
+                        </div>
+                        <div class="progress-bar-wrapper">
+                            <div class="progress-bar-label">
+                                <span class="progress-bar-name">Chính tả & Ngữ pháp</span>
+                                <span class="progress-bar-percent" data-target="0">0%</span>
+                            </div>
+                            <div class="progress-bar-bg">
+                                <div class="progress-bar-fill fill-pink" data-width="0"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==================== ROADMAP SECTION ==================== -->
+            <section class="roadmap-section animate-in" id="roadmap">
+                <div class="section-header">
+                    <div class="section-icon green"><i class="fas fa-route"></i></div>
+                    <div>
+                        <div class="section-title">Roadmap Đồ án</div>
+                        <div class="section-subtitle">Lộ trình 10 giai đoạn — Xuất khẩu Vải thiều / Nhãn → Nhật Bản</div>
+                    </div>
+                </div>
+
+                <div class="roadmap-timeline">
+                    <!-- Phase 1 -->
+                    <div class="roadmap-item">
+                        <div class="roadmap-dot completed"></div>
+                        <div class="roadmap-card">
+                            <div class="roadmap-card-header">
+                                <span class="roadmap-phase phase-completed">Giai đoạn 1</span>
+                            </div>
+                            <div class="roadmap-title">Lựa chọn đề tài & Xác định phạm vi</div>
+                            <div class="roadmap-desc">Chọn mặt hàng (vải thiều/nhãn), thị trường mục tiêu (Nhật Bản), xác định vấn đề nghiên cứu, mục tiêu, phạm vi và phương pháp nghiên cứu.</div>
+                            <div class="roadmap-tags">
+                                <span class="roadmap-tag">Đề cương</span>
+                                <span class="roadmap-tag">Mục tiêu NC</span>
+                                <span class="roadmap-tag">Câu hỏi NC</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Phase 2 -->
+                    <div class="roadmap-item">
+                        <div class="roadmap-dot completed"></div>
+                        <div class="roadmap-card">
+                            <div class="roadmap-card-header">
+                                <span class="roadmap-phase phase-completed">Giai đoạn 2</span>
+                            </div>
+                            <div class="roadmap-title">Tổng quan & Cơ sở lý luận</div>
+                            <div class="roadmap-desc">Nghiên cứu lý thuyết về logistics xuất khẩu nông sản, chuỗi cung ứng lạnh, quy định SPS/TBT của Nhật Bản, tiêu chuẩn JAS, JGAP.</div>
+                            <div class="roadmap-tags">
+                                <span class="roadmap-tag">Chương 1</span>
+                                <span class="roadmap-tag">Lý thuyết</span>
+                                <span class="roadmap-tag">Cold Chain</span>
+                                <span class="roadmap-tag">SPS/TBT</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Phase 3 -->
+                    <div class="roadmap-item">
+                        <div class="roadmap-dot in-progress"></div>
+                        <div class="roadmap-card">
+                            <div class="roadmap-card-header">
+                                <span class="roadmap-phase phase-progress">Giai đoạn 3</span>
+                            </div>
+                            <div class="roadmap-title">Phân tích thực trạng xuất khẩu</div>
+                            <div class="roadmap-desc">Thu thập số liệu kim ngạch XK vải thiều/nhãn VN–Nhật, phân tích sản lượng, thị phần, đối thủ cạnh tranh (Thái Lan, Trung Quốc), xu hướng tiêu dùng.</div>
+                            <div class="roadmap-tags">
+                                <span class="roadmap-tag">Chương 2</span>
+                                <span class="roadmap-tag">Số liệu XK</span>
+                                <span class="roadmap-tag">Thị phần</span>
+                                <span class="roadmap-tag">SWOT</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Phase 4 -->
+                    <div class="roadmap-item">
+                        <div class="roadmap-dot in-progress"></div>
+                        <div class="roadmap-card">
+                            <div class="roadmap-card-header">
+                                <span class="roadmap-phase phase-progress">Giai đoạn 4</span>
+                            </div>
+                            <div class="roadmap-title">Thiết kế quy trình Logistics xuất khẩu</div>
+                            <div class="roadmap-desc">Xây dựng quy trình logistics: thu mua → sơ chế → đóng gói → vận chuyển nội địa → thủ tục hải quan → vận tải quốc tế → thông quan Nhật Bản → phân phối.</div>
+                            <div class="roadmap-tags">
+                                <span class="roadmap-tag">Flowchart</span>
+                                <span class="roadmap-tag">Incoterms</span>
+                                <span class="roadmap-tag">Hải quan</span>
+                                <span class="roadmap-tag">Air/Sea Freight</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Phase 5 -->
+                    <div class="roadmap-item">
+                        <div class="roadmap-dot pending"></div>
+                        <div class="roadmap-card">
+                            <div class="roadmap-card-header">
+                                <span class="roadmap-phase phase-pending">Giai đoạn 5</span>
+                            </div>
+                            <div class="roadmap-title">Phân tích chuỗi cung ứng lạnh (Cold Chain)</div>
+                            <div class="roadmap-desc">Nghiên cứu yêu cầu bảo quản vải/nhãn, hệ thống kho lạnh, phương tiện vận chuyển lạnh, nhiệt độ tiêu chuẩn, thời gian bảo quản (shelf-life).</div>
+                            <div class="roadmap-tags">
+                                <span class="roadmap-tag">Kho lạnh</span>
+                                <span class="roadmap-tag">Reefer Container</span>
+                                <span class="roadmap-tag">Shelf-life</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Phase 6 -->
+                    <div class="roadmap-item">
+                        <div class="roadmap-dot pending"></div>
+                        <div class="roadmap-card">
+                            <div class="roadmap-card-header">
+                                <span class="roadmap-phase phase-pending">Giai đoạn 6</span>
+                            </div>
+                            <div class="roadmap-title">Phân tích chi phí & Tính giá thành xuất khẩu</div>
+                            <div class="roadmap-desc">Tính toán chi phí logistics từng khâu: thu mua, sơ chế, bao bì, vận chuyển, bảo hiểm, thuế, phí kiểm dịch, chi phí thông quan, chi phí marketing.</div>
+                            <div class="roadmap-tags">
+                                <span class="roadmap-tag">Costing</span>
+                                <span class="roadmap-tag">FOB/CIF</span>
+                                <span class="roadmap-tag">Break-even</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Phase 7 -->
+                    <div class="roadmap-item">
+                        <div class="roadmap-dot pending"></div>
+                        <div class="roadmap-card">
+                            <div class="roadmap-card-header">
+                                <span class="roadmap-phase phase-pending">Giai đoạn 7</span>
+                            </div>
+                            <div class="roadmap-title">Rủi ro & Giải pháp</div>
+                            <div class="roadmap-desc">Nhận diện rủi ro: hàng hỏng, chậm trễ vận chuyển, không đạt kiểm dịch, biến động tỷ giá, rủi ro thanh toán. Đề xuất giải pháp phòng ngừa và khắc phục.</div>
+                            <div class="roadmap-tags">
+                                <span class="roadmap-tag">Risk Matrix</span>
+                                <span class="roadmap-tag">Chương 3</span>
+                                <span class="roadmap-tag">Giải pháp</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Phase 8 -->
+                    <div class="roadmap-item">
+                        <div class="roadmap-dot pending"></div>
+                        <div class="roadmap-card">
+                            <div class="roadmap-card-header">
+                                <span class="roadmap-phase phase-pending">Giai đoạn 8</span>
+                            </div>
+                            <div class="roadmap-title">Kiến nghị & Kết luận</div>
+                            <div class="roadmap-desc">Tổng hợp kết quả nghiên cứu, đưa ra kiến nghị cho doanh nghiệp xuất khẩu, cơ quan quản lý, nông dân. Hạn chế của đề tài và hướng nghiên cứu tiếp.</div>
+                            <div class="roadmap-tags">
+                                <span class="roadmap-tag">Kết luận</span>
+                                <span class="roadmap-tag">Kiến nghị</span>
+                                <span class="roadmap-tag">Hạn chế</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Phase 9 -->
+                    <div class="roadmap-item">
+                        <div class="roadmap-dot pending"></div>
+                        <div class="roadmap-card">
+                            <div class="roadmap-card-header">
+                                <span class="roadmap-phase phase-pending">Giai đoạn 9</span>
+                            </div>
+                            <div class="roadmap-title">Hoàn thiện trình bày & Format</div>
+                            <div class="roadmap-desc">Căn chỉnh lề, font chữ, headings, mục lục tự động, danh mục bảng biểu/hình ảnh, TLTK theo APA 7th, phụ lục, kiểm tra chính tả toàn bộ.</div>
+                            <div class="roadmap-tags">
+                                <span class="roadmap-tag">Format</span>
+                                <span class="roadmap-tag">APA 7th</span>
+                                <span class="roadmap-tag">Mục lục</span>
+                                <span class="roadmap-tag">Proofread</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Phase 10 -->
+                    <div class="roadmap-item">
+                        <div class="roadmap-dot pending"></div>
+                        <div class="roadmap-card">
+                            <div class="roadmap-card-header">
+                                <span class="roadmap-phase phase-pending">Giai đoạn 10</span>
+                            </div>
+                            <div class="roadmap-title">Nộp bài & Bảo vệ đồ án</div>
+                            <div class="roadmap-desc">In ấn, đóng bìa, nộp bản cứng + bản mềm. Chuẩn bị slide thuyết trình, rehearsal, bảo vệ trước hội đồng.</div>
+                            <div class="roadmap-tags">
+                                <span class="roadmap-tag">In ấn</span>
+                                <span class="roadmap-tag">Slide</span>
+                                <span class="roadmap-tag">Bảo vệ</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==================== GUIDES SECTION ==================== -->
+            <section class="guides-section animate-in" id="guides">
+                <div class="section-header">
+                    <div class="section-icon blue"><i class="fas fa-book-open"></i></div>
+                    <div>
+                        <div class="section-title">Hướng dẫn & Công cụ</div>
+                        <div class="section-subtitle">Tài liệu hướng dẫn chi tiết cho đồ án</div>
+                    </div>
+                </div>
+
+                <div class="guides-grid">
+
+                    <!-- Guide 1: Căn chỉnh lề -->
+                    <div class="guide-card" id="guide1">
+                        <div class="guide-card-header">
+                            <div class="guide-icon" style="background: linear-gradient(135deg, #6c63ff, #8b83ff);">
+                                <i class="fas fa-ruler-combined"></i>
+                            </div>
+                            <div class="guide-card-title">Hướng dẫn căn chỉnh lề chuẩn đồ án</div>
+                        </div>
+                        <div class="guide-card-body">
+                            <button class="guide-expand-btn" onclick="toggleGuide('guide1')">
+                                <span>Xem chi tiết</span>
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                            <div class="guide-content">
+                                <div class="guide-text">
+                                    <h4>📐 Cài đặt lề trang (Page Layout → Margins → Custom Margins)</h4>
+                                    <div class="highlight">
+                                        <strong>Lề chuẩn đồ án:</strong><br>
+                                        • Lề trên (Top): <code>2.0 cm</code><br>
+                                        • Lề dưới (Bottom): <code>2.0 cm</code><br>
+                                        • Lề trái (Left): <code>3.0 cm</code> (để đóng gáy)<br>
+                                        • Lề phải (Right): <code>2.0 cm</code>
+                                    </div>
+
+                                    <h4>🔤 Font chữ & Cỡ chữ</h4>
+                                    <ul>
+                                        <li>Font: <code>Times New Roman</code></li>
+                                        <li>Cỡ chữ nội dung: <code>13pt</code> (hoặc 12pt tuỳ trường)</li>
+                                        <li>Cỡ chữ tiêu đề chương: <code>14pt – 16pt</code>, in đậm, in hoa</li>
+                                        <li>Cỡ chữ tiêu đề mục: <code>13pt – 14pt</code>, in đậm</li>
+                                    </ul>
+
+                                    <h4>📏 Giãn dòng & Paragraph</h4>
+                                    <ul>
+                                        <li>Line spacing: <code>1.5 lines</code></li>
+                                        <li>Spacing Before: <code>0pt</code></li>
+                                        <li>Spacing After: <code>6pt</code></li>
+                                        <li>First line indent: <code>1.27 cm</code> (0.5 inch)</li>
+                                        <li>Alignment: <code>Justify</code> (căn đều 2 bên)</li>
+                                    </ul>
+
+                                    <h4>📄 Đánh số trang</h4>
+                                    <ul>
+                                        <li>Trang bìa: không đánh số</li>
+                                        <li>Phần mở đầu (lời cảm ơn, mục lục): đánh số La Mã (i, ii, iii...)</li>
+                                        <li>Nội dung chính: đánh số Ả Rập (1, 2, 3...), bắt đầu từ trang 1</li>
+                                        <li>Vị trí: giữa cuối trang hoặc góc phải dưới</li>
+                                    </ul>
+
+                                    <h4>⚙️ Thao tác nhanh trong Word</h4>
+                                    <pre>1. File → Page Setup / Layout → Margins → Custom Margins
+   → Nhập lề: Top 2cm, Bottom 2cm, Left 3cm, Right 2cm
+
+2. Home → Font: Times New Roman, Size 13
+
+3. Home → Paragraph:
+   → Alignment: Justify
+   → Line Spacing: 1.5
+   → Special: First line = 1.27cm
+
+4. Insert → Page Number → Bottom of Page
+   → Format Page Numbers → Start at: 1</pre>
+
+                                    <div class="warning">
+                                        <strong>⚠️ Lưu ý:</strong> Kiểm tra lại quy định của trường/khoa trước khi áp dụng. Mỗi trường có thể có yêu cầu lề khác nhau.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Guide 2: APA 7th -->
+                    <div class="guide-card" id="guide2">
+                        <div class="guide-card-header">
+                            <div class="guide-icon" style="background: linear-gradient(135deg, #00d4aa, #00e6b8);">
+                                <i class="fas fa-quote-left"></i>
+                            </div>
+                            <div class="guide-card-title">Hướng dẫn trích nguồn chuẩn APA 7th</div>
+                        </div>
+                        <div class="guide-card-body">
+                            <button class="guide-expand-btn" onclick="toggleGuide('guide2')">
+                                <span>Xem chi tiết</span>
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                            <div class="guide-content">
+                                <div class="guide-text">
+                                    <h4>📖 Trích dẫn trong bài (In-text Citation)</h4>
+                                    <div class="highlight">
+                                        <strong>1 tác giả:</strong> (Nguyễn, 2023) hoặc Nguyễn (2023) cho rằng...<br>
+                                        <strong>2 tác giả:</strong> (Nguyễn & Trần, 2023)<br>
+                                        <strong>3+ tác giả:</strong> (Nguyễn et al., 2023)<br>
+                                        <strong>Tổ chức:</strong> (Bộ Công Thương, 2023)
+                                    </div>
+
+                                    <h4>📚 Danh mục tài liệu tham khảo</h4>
+                                    
+                                    <h4>Sách:</h4>
+<pre>Tác giả, A. B. (Năm). Tên sách (in nghiêng). Nhà xuất bản.
+
+Ví dụ:
+Nguyễn Văn A. (2022). Logistics và quản lý chuỗi cung ứng. NXB Đại học Kinh tế Quốc dân.</pre>
+
+                                    <h4>Bài báo khoa học:</h4>
+<pre>Tác giả, A. B. (Năm). Tên bài báo. Tên tạp chí (in nghiêng), Tập(Số), Trang. https://doi.org/xxxxx
+
+Ví dụ:
+Trần Thị B. (2023). Thực trạng xuất khẩu vải thiều Việt Nam. 
+Tạp chí Khoa học Thương mại, 15(2), 45-58. https://doi.org/10.1234/example</pre>
+
+                                    <h4>Website:</h4>
+<pre>Tác giả/Tổ chức. (Năm, Tháng Ngày). Tên bài viết. Tên website. URL
+
+Ví dụ:
+Tổng cục Hải quan. (2024, Tháng 3 15). Thống kê xuất nhập khẩu 2023. 
+https://www.customs.gov.vn/thongke2023</pre>
+
+                                    <h4>Báo cáo của tổ chức:</h4>
+<pre>Tổ chức. (Năm). Tên báo cáo (in nghiêng) (Mã báo cáo nếu có). URL
+
+Ví dụ:
+Bộ Nông nghiệp & PTNT. (2023). Báo cáo xuất khẩu nông sản 2023. 
+https://www.mard.gov.vn/report2023</pre>
+
+                                    <h4>🔧 Công cụ tạo trích dẫn tự động</h4>
+                                    <ul>
+                                        <li><strong>Zotero</strong> (miễn phí) — quản lý nguồn + tự tạo APA</li>
+                                        <li><strong>Mendeley</strong> — tích hợp Word plugin</li>
+                                        <li><strong>Google Scholar</strong> → nhấn icon <code>"</code> → chọn APA</li>
+                                        <li><strong>CitationMachine.net</strong> — web tạo citation nhanh</li>
+                                    </ul>
+
+                                    <div class="warning">
+                                        <strong>⚠️ Quy tắc quan trọng APA 7th:</strong><br>
+                                        • Sắp xếp TLTK theo thứ tự ABC tên tác giả<br>
+                                        • Thụt dòng từ dòng thứ 2 trở đi (Hanging indent 1.27cm)<br>
+                                        • DOI dạng URL: https://doi.org/xxxxx<br>
+                                        • Không cần ghi "Truy cập ngày..." cho nguồn ổn định<br>
+                                        • Tác giả Việt: ghi đủ họ tên, không viết tắt
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Guide 3: Prompt Gemini -->
+                    <div class="guide-card" id="guide3">
+                        <div class="guide-card-header">
+                            <div class="guide-icon" style="background: linear-gradient(135deg, #ff6b6b, #ff8e8e);">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <div class="guide-card-title">Prompt đánh giá đồ án bằng AI</div>
+                        </div>
+                        <div class="guide-card-body">
+                            <button class="guide-expand-btn" onclick="toggleGuide('guide3')">
+                                <span>Xem chi tiết</span>
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                            <div class="guide-content">
+                                <div class="guide-text">
+                                    <h4>🤖 Prompt tổng hợp đánh giá + nhận xét + lỗi sai + cách khắc phục</h4>
+                                    <div class="highlight">
+                                        Copy prompt dưới đây và paste cùng file đồ án vào Gemini Pro / ChatGPT
+                                    </div>
+
+<pre id="promptText1">Bạn là một giảng viên đại học chuyên ngành Logistics & Quản lý chuỗi cung ứng với 15 năm kinh nghiệm hướng dẫn đồ án tốt nghiệp. 
+
+Hãy đọc kỹ file đồ án tôi gửi và thực hiện đánh giá TOÀN DIỆN theo cấu trúc sau:
+
+━━━━━━━━━━━━━━━━━━━━━━━
+📊 I. ĐÁNH GIÁ TỔNG QUAN
+━━━━━━━━━━━━━━━━━━━━━━━
+- Điểm tổng thể (thang 10)
+- Mức độ hoàn thiện (%)  
+- Nhận xét tổng quát (3-5 dòng)
+
+━━━━━━━━━━━━━━━━━━━━━━━
+📝 II. ĐÁNH GIÁ CHI TIẾT TỪNG PHẦN
+━━━━━━━━━━━━━━━━━━━━━━━
+Với MỖI chương/phần, đánh giá:
+a) Nội dung: đầy đủ? logic? có số liệu?
+b) Trình bày: format, lề, font, heading?
+c) Nguồn trích dẫn: đúng APA 7th?
+d) Điểm mạnh
+e) Điểm cần cải thiện
+
+━━━━━━━━━━━━━━━━━━━━━━━
+❌ III. DANH SÁCH LỖI SAI
+━━━━━━━━━━━━━━━━━━━━━━━
+Liệt kê TẤT CẢ lỗi theo format:
+| STT | Vị trí (trang/dòng) | Loại lỗi | Mô tả lỗi | Mức độ (Nghiêm trọng/Trung bình/Nhẹ) |
+
+━━━━━━━━━━━━━━━━━━━━━━━
+✅ IV. CÁCH KHẮC PHỤC & CẢI THIỆN
+━━━━━━━━━━━━━━━━━━━━━━━
+Với mỗi lỗi ở phần III, đề xuất:
+- Cách sửa cụ thể
+- Ví dụ minh hoạ (nếu cần)
+- Thứ tự ưu tiên sửa
+
+━━━━━━━━━━━━━━━━━━━━━━━
+🎯 V. KHUYẾN NGHỊ HÀNH ĐỘNG
+━━━━━━━━━━━━━━━━━━━━━━━
+- Top 5 việc cần làm ngay
+- Những phần cần bổ sung
+- Gợi ý nguồn tham khảo thêm
+
+━━━━━━━━━━━━━━━━━━━━━━━
+📈 VI. BẢNG CHẤM ĐIỂM CHI TIẾT
+━━━━━━━━━━━━━━━━━━━━━━━
+| Tiêu chí | Điểm (/10) | Ghi chú |
+|---|---|---|
+| Nội dung & độ sâu | /10 | |
+| Logic & cấu trúc | /10 | |
+| Số liệu & minh chứng | /10 | |
+| Trình bày & format | /10 | |
+| Trích dẫn & TLTK | /10 | |
+| Chính tả & ngữ pháp | /10 | |
+| Tính ứng dụng thực tiễn | /10 | |
+
+Hãy đánh giá nghiêm túc, khách quan, chi tiết nhất có thể. Đừng ngại chỉ ra lỗi sai. Mục đích là giúp sinh viên hoàn thiện đồ án tốt nhất.</pre>
+
+                                    <button class="copy-btn" onclick="copyToClipboard('promptText1', this)">
+                                        <i class="fas fa-copy"></i> Copy Prompt
+                                    </button>
+
+                                    <h4 style="margin-top: 24px;">🔄 Prompt cập nhật tiến độ (dùng sau mỗi lần sửa)</h4>
+<pre id="promptText2">Tôi đã sửa đồ án theo đánh giá lần trước. Hãy:
+
+1. So sánh với phiên bản trước (nếu nhớ) và đánh giá tiến bộ
+2. Đánh giá lại toàn bộ theo cùng tiêu chí
+3. Cập nhật % hoàn thiện của từng phần:
+   - Mở đầu & Giới thiệu: __% 
+   - Cơ sở lý luận: __%
+   - Thực trạng & Phân tích: __%
+   - Giải pháp & Kiến nghị: __%
+   - Kết luận: __%
+   - Căn lề & Font chữ: __%
+   - Headings & Mục lục: __%
+   - Bảng biểu & Hình ảnh: __%
+   - Trích dẫn APA: __%
+   - Chính tả & Ngữ pháp: __%
+   - TỔNG THỂ: __%
+
+4. Số lỗi còn lại: __ lỗi
+5. Đánh giá: Đạt / Cần sửa thêm / Chưa đạt
+
+Xuất kết quả dạng dễ đọc để tôi cập nhật lên dashboard.</pre>
+
+                                    <button class="copy-btn" onclick="copyToClipboard('promptText2', this)">
+                                        <i class="fas fa-copy"></i> Copy Prompt
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Guide 4: Headings & Menu -->
+                    <div class="guide-card" id="guide4">
+                        <div class="guide-card-header">
+                            <div class="guide-icon" style="background: linear-gradient(135deg, #ffa726, #ffb74d);">
+                                <i class="fas fa-list-ol"></i>
+                            </div>
+                            <div class="guide-card-title">Hướng dẫn chỉnh Headings & Mục lục tự động</div>
+                        </div>
+                        <div class="guide-card-body">
+                            <button class="guide-expand-btn" onclick="toggleGuide('guide4')">
+                                <span>Xem chi tiết</span>
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                            <div class="guide-content">
+                                <div class="guide-text">
+                                    <h4>🎯 Mục đích</h4>
+                                    <p>Khi đã viết xong nội dung, cần gán Heading styles để Word tự tạo mục lục (Table of Contents). Điều này giúp:</p>
+                                    <ul>
+                                        <li>Mục lục tự động cập nhật số trang</li>
+                                        <li>Điều hướng nhanh trong Navigation Pane</li>
+                                        <li>Trình bày chuyên nghiệp, đúng chuẩn</li>
+                                    </ul>
+
+                                    <h4>📋 Bước 1: Xác định cấu trúc Headings</h4>
+<pre>Heading 1 → Tên chương (CHƯƠNG 1, CHƯƠNG 2...)
+   Heading 2 → Mục lớn (1.1, 1.2, 2.1...)
+      Heading 3 → Mục nhỏ (1.1.1, 1.1.2...)
+         Heading 4 → Mục con (nếu cần)
+
+Ví dụ:
+CHƯƠNG 2: THỰC TRẠNG XUẤT KHẨU    → Heading 1
+  2.1. Tổng quan thị trường          → Heading 2
+    2.1.1. Sản lượng vải thiều VN    → Heading 3
+    2.1.2. Kim ngạch xuất khẩu       → Heading 3
+  2.2. Quy trình logistics hiện tại  → Heading 2</pre>
+
+                                    <h4>📋 Bước 2: Gán Heading trong Word</h4>
+<pre>Cách 1 — Dùng Styles Gallery:
+1. Bôi đen dòng tiêu đề cần gán
+2. Tab Home → nhóm Styles
+3. Click chọn "Heading 1" / "Heading 2" / "Heading 3"
+
+Cách 2 — Dùng phím tắt:
+• Ctrl + Alt + 1 → Heading 1
+• Ctrl + Alt + 2 → Heading 2
+• Ctrl + Alt + 3 → Heading 3</pre>
+
+                                    <h4>📋 Bước 3: Tuỳ chỉnh format Heading</h4>
+<pre>Sau khi gán Heading, cần chỉnh lại format cho đúng chuẩn:
+
+1. Click chuột phải vào style "Heading 1" → Modify
+2. Chỉnh:
+   - Font: Times New Roman
+   - Size: 14pt (hoặc theo quy định)
+   - Bold: Yes
+   - Color: Automatic (đen)
+   - Paragraph: 
+     + Alignment: Center hoặc Left
+     + Spacing Before: 12pt
+     + Spacing After: 6pt
+     + Line Spacing: 1.5
+
+3. Tick ✅ "Automatically update"
+4. Click OK
+
+→ Làm tương tự cho Heading 2, 3</pre>
+
+                                    <h4>📋 Bước 4: Tạo Mục lục tự động</h4>
+<pre>1. Đặt con trỏ ở trang muốn đặt mục lục
+2. Tab References → Table of Contents
+3. Chọn "Automatic Table 1" hoặc "Custom..."
+4. Tuỳ chỉnh:
+   - Show levels: 3 (hiện đến Heading 3)
+   - Tab leader: dấu ......
+   - Show page numbers: ✅
+
+Cập nhật mục lục sau khi sửa nội dung:
+→ Click vào mục lục → "Update Table" 
+→ Chọn "Update entire table"
+→ Hoặc nhấn: Ctrl + A → F9</pre>
+
+                                    <h4>📋 Bước 5: Bật Navigation Pane</h4>
+<pre>View → tick ✅ Navigation Pane
+
+→ Thanh bên trái sẽ hiện danh sách headings
+→ Click vào heading để nhảy đến phần đó
+→ Kéo thả để sắp xếp lại thứ tự</pre>
+
+                                    <div class="highlight">
+                                        <strong>💡 Mẹo:</strong> Nếu đồ án đã viết xong mà chưa gán Heading, hãy dùng <code>Find & Replace</code> (Ctrl+H) với <code>Format → Style</code> để tìm nhanh các dòng cần gán Heading.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+        </div>
+
+        <!-- FOOTER -->
+        <footer class="footer">
+            <p class="footer-text">
+                Made with <span class="footer-heart">♥</span> by <a href="#">kov1cx</a> • Logistics Dashboard © 2025
+            </p>
+        </footer>
+
+    </div>
+
+    <!-- SCROLL TO TOP -->
+    <button class="scroll-top" id="scrollTop" title="Về đầu trang">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- ==================== JAVASCRIPT ==================== -->
+    <script>
+        // ==================== LOADING SCREEN ====================
+        (function() {
+            const loadingBar = document.getElementById('loadingBar');
+            const loadingScreen = document.getElementById('loadingScreen');
+            const mainContent = document.getElementById('mainContent');
+            
+            let progress = 0;
+            const duration = 3000; // 3 seconds
+            const interval = 30;
+            const increment = (100 / (duration / interval));
+
+            const loadTimer = setInterval(() => {
+                progress += increment + (Math.random() * 2 - 1);
+                progress = Math.min(progress, 100);
+                loadingBar.style.width = progress + '%';
+
+                if (progress >= 100) {
+                    clearInterval(loadTimer);
+                    setTimeout(() => {
+                        loadingScreen.classList.add('fade-out');
+                        setTimeout(() => {
+                            loadingScreen.style.display = 'none';
+                            mainContent.classList.add('visible');
+                            initAnimations();
+                        }, 1000);
+                    }, 300);
+                }
+            }, interval);
+        })();
+
+        // ==================== PARTICLES ====================
+        (function() {
+            const container = document.getElementById('particles');
+            const particleCount = 25;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                const size = Math.random() * 4 + 2;
+                particle.style.width = size + 'px';
+                particle.style.height = size + 'px';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDuration = (Math.random() * 15 + 10) + 's';
+                particle.style.animationDelay = (Math.random() * 10) + 's';
+                container.appendChild(particle);
+            }
+        })();
+
+        // ==================== DATE & TIME ====================
+        function updateDateTime() {
+            const now = new Date();
+            const timeEl = document.getElementById('timeDisplay');
+            const dateEl = document.getElementById('dateDisplay');
+
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            timeEl.textContent = `${hours}:${minutes}:${seconds}`;
+
+            const days = ['Chủ nhật', 'Thứ hai', 'Thứ ba', 'Thứ tư', 'Thứ năm', 'Thứ sáu', 'Thứ bảy'];
+            const day = days[now.getDay()];
+            const date = String(now.getDate()).padStart(2, '0');
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const year = now.getFullYear();
+            dateEl.textContent = `${day}, ${date}/${month}/${year}`;
+        }
+        
+        setInterval(updateDateTime, 1000);
+        updateDateTime();
+
+        // ==================== THEME TOGGLE ====================
+        const themeToggle = document.getElementById('themeToggle');
+        const html = document.documentElement;
+
+        // Load saved theme or default to dark
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        html.setAttribute('data-theme', savedTheme);
+        updateThemeIcon(savedTheme);
+
+        themeToggle.addEventListener('click', () => {
+            const current = html.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+            updateThemeIcon(next);
+        });
+
+        function updateThemeIcon(theme) {
+            const icon = themeToggle.querySelector('i');
+            icon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+        }
+
+        // ==================== NAVBAR SCROLL ====================
+        const navbar = document.getElementById('navbar');
+        const scrollTop = document.getElementById('scrollTop');
+
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+
+            if (window.scrollY > 400) {
+                scrollTop.classList.add('visible');
+            } else {
+                scrollTop.classList.remove('visible');
+            }
+
+            // Update active nav link
+            updateActiveNav();
+        });
+
+        scrollTop.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // ==================== ACTIVE NAV LINK ====================
+        function updateActiveNav() {
+            const sections = ['progress', 'roadmap', 'guides'];
+            const scrollPos = window.scrollY + 200;
+
+            sections.forEach(id => {
+                const section = document.getElementById(id);
+                if (section) {
+                    const top = section.offsetTop;
+                    const bottom = top + section.offsetHeight;
+                    const link = document.querySelector(`.nav-link[data-section="${id}"]`);
+                    
+                    if (link) {
+                        if (scrollPos >= top && scrollPos < bottom) {
+                            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                            link.classList.add('active');
+                        }
+                    }
+                }
+            });
+        }
+
+        // ==================== MOBILE NAV ====================
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileNav = document.getElementById('mobileNav');
+
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileNav.classList.toggle('active');
+            const icon = mobileMenuBtn.querySelector('i');
+            icon.className = mobileNav.classList.contains('active') ? 'fas fa-times' : 'fas fa-bars';
+        });
+
+        function closeMobileNav() {
+            mobileNav.classList.remove('active');
+            mobileMenuBtn.querySelector('i').className = 'fas fa-bars';
+        }
+
+        // ==================== GUIDE TOGGLE ====================
+        function toggleGuide(id) {
+            const card = document.getElementById(id);
+            card.classList.toggle('expanded');
+            const btn = card.querySelector('.guide-expand-btn span');
+            btn.textContent = card.classList.contains('expanded') ? 'Thu gọn' : 'Xem chi tiết';
+        }
+
+        // ==================== COPY TO CLIPBOARD ====================
+        function copyToClipboard(elementId, btn) {
+            const text = document.getElementById(elementId).textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                btn.classList.add('copied');
+                btn.innerHTML = '<i class="fas fa-check"></i> Đã copy!';
+                setTimeout(() => {
+                    btn.classList.remove('copied');
+                    btn.innerHTML = '<i class="fas fa-copy"></i> Copy Prompt';
+                }, 2000);
+            });
+        }
+
+        // ==================== SCROLL ANIMATIONS ====================
+        function initAnimations() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        
+                        // Animate progress bars in this section
+                        const bars = entry.target.querySelectorAll('.progress-bar-fill');
+                        bars.forEach((bar, i) => {
+                            setTimeout(() => {
+                                const width = bar.getAttribute('data-width');
+                                bar.style.width = width + '%';
+                            }, i * 100);
+                        });
+
+                        const overallFill = entry.target.querySelector('.overall-bar-fill');
+                        if (overallFill) {
+                            setTimeout(() => {
+                                overallFill.style.width = overallFill.getAttribute('data-width') + '%';
+                            }, 200);
+                        }
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            document.querySelectorAll('.animate-in').forEach(el => {
+                observer.observe(el);
+            });
+        }
+
+        // ==================== PROGRESS DATA ====================
+        // 🔧 CẬP NHẬT SỐ LIỆU SAU MỖI LẦN GEMINI PRO ĐÁNH GIÁ
+        // Thay đổi các giá trị dưới đây theo kết quả đánh giá
+
+        const progressData = {
+            lastUpdate: "15/01/2025",  // Ngày đánh giá gần nhất
+            overall: 25,               // % tổng thể
+
+            // Chất lượng nội dung
+            content: {
+                intro: 60,             // Mở đầu & Giới thiệu
+                theory: 45,            // Cơ sở lý luận
+                analysis: 20,          // Thực trạng & Phân tích
+                solution: 0,           // Giải pháp & Kiến nghị
+                conclusion: 0          // Kết luận
+            },
+
+            // Trình bày & Format
+            format: {
+                margins: 50,           // Căn lề & Font chữ
+                headings: 30,          // Headings & Mục lục
+                tables: 10,            // Bảng biểu & Hình ảnh
+                citation: 15,          // Trích dẫn APA
+                spelling: 40           // Chính tả & Ngữ pháp
+            },
+
+            // Thống kê
+            stats: {
+                completed: 2,          // Số giai đoạn hoàn thành
+                inProgress: 2,         // Đang làm
+                pending: 6,            // Chưa làm
+                issues: 12             // Số lỗi cần sửa
+            }
+        };
+
+        // Apply progress data to DOM
+        function applyProgressData() {
+            const d = progressData;
+
+            // Hero
+            document.getElementById('heroProgress').textContent = d.overall + '%';
+            document.getElementById('heroLastUpdate').textContent = d.lastUpdate;
+
+            // Overall
+            document.getElementById('overallValue').textContent = d.overall + '%';
+            const overallFill = document.getElementById('overallFill');
+            overallFill.setAttribute('data-width', d.overall);
+
+            // Stats
+            document.getElementById('statCompleted').textContent = d.stats.completed;
+            document.getElementById('statInProgress').textContent = d.stats.inProgress;
+            document.getElementById('statPending').textContent = d.stats.pending;
+            document.getElementById('statIssues').textContent = d.stats.issues;
+
+            // Eval date
+            document.getElementById('evalDate').innerHTML = 
+                `<i class="fas fa-robot"></i> Đánh giá bởi Gemini Pro — Cập nhật: ${d.lastUpdate}`;
+
+            // Content bars
+            const contentCard = document.querySelectorAll('.progress-card')[1];
+            const contentBars = contentCard.querySelectorAll('.progress-bar-fill');
+            const contentPercents = contentCard.querySelectorAll('.progress-bar-percent');
+            const contentValues = [d.content.intro, d.content.theory, d.content.analysis, d.content.solution, d.content.conclusion];
+            
+            contentBars.forEach((bar, i) => {
+                bar.setAttribute('data-width', contentValues[i]);
+                contentPercents[i].textContent = contentValues[i] + '%';
+                contentPercents[i].setAttribute('data-target', contentValues[i]);
+            });
+
+            // Format bars
+            const formatCard = document.querySelectorAll('.progress-card')[2];
+            const formatBars = formatCard.querySelectorAll('.progress-bar-fill');
+            const formatPercents = formatCard.querySelectorAll('.progress-bar-percent');
+            const formatValues = [d.format.margins, d.format.headings, d.format.tables, d.format.citation, d.format.spelling];
+            
+            formatBars.forEach((bar, i) => {
+                bar.setAttribute('data-width', formatValues[i]);
+                formatPercents[i].textContent = formatValues[i] + '%';
+                formatPercents[i].setAttribute('data-target', formatValues[i]);
+            });
+        }
+
+        // Run on load
+        applyProgressData();
+
+        // ==================== SMOOTH SCROLL FOR NAV LINKS ====================
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    const offset = 80;
+                    const top = target.getBoundingClientRect().top + window.pageYOffset - offset;
+                    window.scrollTo({ top, behavior: 'smooth' });
+                }
+                closeMobileNav();
+            });
+        });
+
+        // ==================== COUNTER ANIMATION ====================
+        function animateCounter(element, target, duration = 1500) {
+            let start = 0;
+            const startTime = performance.now();
+
+            function update(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const eased = 1 - Math.pow(1 - progress, 3);
+                const current = Math.round(eased * target);
+                element.textContent = current + '%';
+
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                }
+            }
+
+            requestAnimationFrame(update);
+        }
+
+        // Observe hero stats for counter animation
+        const heroObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const heroProgress = document.getElementById('heroProgress');
+                    animateCounter(heroProgress, progressData.overall);
+                    heroObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.5 });
+
+        const heroSection = document.querySelector('.hero-section');
+        if (heroSection) heroObserver.observe(heroSection);
+    </script>
+</body>
+</html>
